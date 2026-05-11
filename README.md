@@ -36,9 +36,6 @@ ollama pull llama3.1
 streamlit run app.py
 ```
 
-## 📸 Ekran Görüntüleri
-*(buraya ekran görüntüsü ekleyeceksin)*
-
 ## 🧰 Teknolojiler
 - Streamlit
 - Pandas & NumPy
