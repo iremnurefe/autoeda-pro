@@ -18,7 +18,6 @@ st.markdown("---")
 # Sol panel ayarlar
 with st.sidebar:
     st.header("⚙️ Ayarlar")
-    language = st.selectbox("Rapor Dili", ["Türkçe", "English"])
     st.markdown("---")
     st.markdown("**Nasıl Kullanılır?**")
     st.markdown("1. CSV dosyanı yükle")
@@ -135,9 +134,10 @@ if uploaded_file is not None:
         st.subheader("🤖 AI Destekli Otomatik Rapor")
         st.info("Rapor üretmek için aşağıdaki butona tıkla. Ollama'nın çalışıyor olması gerekiyor.")
         
+        report_lang = st.selectbox("Rapor dilini seç", ["English", "Türkçe"], key="report_lang")
         if st.button("🚀 Rapor Üret", type="primary"):
             with st.spinner("AI raporu yazıyor... (1-2 dakika sürebilir)"):
-                report = generate_report(stats, outliers, corr, language)
+                report = generate_report(stats, outliers, corr, report_lang)
             st.markdown(report)
             
             # PDF Export
