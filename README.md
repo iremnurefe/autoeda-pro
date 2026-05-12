@@ -23,7 +23,9 @@
 
 ## 🖥️ Screenshots
 
-> Coming soon
+![Statistics](screenshot1.png)
+![Charts](screenshot2.png)
+![AI Report](screenshot3.png)
 
 ---
 
