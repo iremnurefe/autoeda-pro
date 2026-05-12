@@ -4,7 +4,6 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "llama3.1"
 
 def generate_report(stats, outliers, corr_matrix, language="Türkçe"):
-    print(f"LANGUAGE PARAMETER: {language}")
     
     rows, cols = stats['shape']
     missing_cols = {k: v for k, v in stats['missing'].items() if v > 0}
