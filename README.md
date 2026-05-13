@@ -23,9 +23,9 @@
 
 ## 🖥️ Screenshots
 
-![Statistics](screenshot1.png)
-![Charts](screenshot2.png)
-![AI Report](screenshot3.png)
+![Statistics](Screenshot1.png)
+![Charts](Screenshot2.png)
+![AI Report](Screenshot3.png)
 
 ---
 
