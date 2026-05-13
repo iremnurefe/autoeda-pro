@@ -1,4 +1,5 @@
 # 📊 AutoEDA Pro — Automated Exploratory Data Analysis
+🌐 **Canlı Demo:** [AutoEDA Pro](https://https://autoeda-pro-dkzktz6xyfnmmpnyeggnmc.streamlit.app/)
 
 > Upload a CSV file and get a professional data analysis report in seconds — with AI-powered insights in Turkish or English.
 
