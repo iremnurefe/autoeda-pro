@@ -24,9 +24,10 @@
 
 ## 🖥️ Screenshots
 
-![Statistics](Screenshot1.png)
-![Charts](Screenshot2.png)
+![Ana Ekran](Screenshot1.png)
+![Genel Bilgiler](Screenshot2.png)
 ![AI Report](Screenshot3.png)
+![Veri Temizleme](Screenshot4.png)
 
 ---
 
