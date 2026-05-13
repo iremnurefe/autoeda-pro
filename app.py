@@ -276,4 +276,13 @@ else:
     """)
     
     st.markdown("---")
-    st.markdown("*Test için örnek CSV dosyası yükleyebilirsin.*")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("### 📊 7 Analiz Sekmesi")
+        st.markdown("İstatistik, dağılım, korelasyon, outlier, AI raporu, veri temizleme, feature importance")
+    with col2:
+        st.markdown("### 🤖 AI Destekli")
+        st.markdown("Groq API ile Llama 3.1 — saniyeler içinde Türkçe veya İngilizce profesyonel rapor")
+    with col3:
+        st.markdown("### 📄 PDF Export")
+        st.markdown("Tüm analizi tek tıkla profesyonel PDF raporu olarak indir")
