@@ -1,7 +1,5 @@
-import requests
-
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "llama3.1"
+import os
+from groq import Groq
 
 def generate_report(stats, outliers, corr_matrix, language="Türkçe"):
     
@@ -24,7 +22,7 @@ def generate_report(stats, outliers, corr_matrix, language="Türkçe"):
                     corr_summary.append(f"{cols_list[i]} & {cols_list[j]}: {val}")
 
     if language == "English":
-        prompt = f"""You are a data analyst assistant. Analyze the following dataset statistics and write a professional report in ENGLISH ONLY. Do not use any Turkish words.
+        prompt = f"""You are a data analyst assistant. Analyze the following dataset statistics and write a professional report in ENGLISH ONLY.
 
 DATASET INFO:
 - Rows: {rows}
@@ -63,29 +61,22 @@ Lutfen sunlari iceren bir rapor yaz:
 Rapor profesyonel Turkce olsun. Markdown formatinda yaz."""
 
     try:
-        response = requests.post(
-            OLLAMA_URL,
-            json={
-                "model": MODEL_NAME,
-                "prompt": prompt,
-                "stream": False,
-                "options": {
-                    "num_predict": 1000,
-                    "temperature": 0.7
-                }
-            },
-            timeout=300
+        api_key = os.environ.get("GROQ_API_KEY")
+        if not api_key:
+            return "⚠️ GROQ_API_KEY bulunamadı! .env dosyasını kontrol et."
+        
+        client = Groq(api_key=api_key)
+        
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=1500,
+            temperature=0.7
         )
         
-        if response.status_code == 200:
-            result = response.json()
-            return result.get("response", "Rapor uretilemedi.")
-        else:
-            return f"Hata: Status {response.status_code} - {response.text}"
+        return response.choices[0].message.content
     
-    except requests.exceptions.ConnectionError:
-        return "Ollama calismiyor! Terminalde 'ollama serve' komutunu calistir."
-    except requests.exceptions.Timeout:
-        return "Zaman asimi! Ollama yanit vermedi, tekrar dene."
     except Exception as e:
-        return f"Beklenmeyen hata: {str(e)}"
+        return f"⚠️ Hata: {str(e)}"

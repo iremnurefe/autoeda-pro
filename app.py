@@ -1,8 +1,10 @@
+from dotenv import load_dotenv
+load_dotenv()
 import streamlit as st
 import pandas as pd
 import numpy as np
-from eda.analyzer import load_data, basic_stats, detect_outliers, correlation_matrix, clean_data, fix_dtypes
-from eda.visualizer import plot_distributions, plot_correlation_heatmap, plot_missing_values, plot_outliers, plot_categorical, plot_scatter, plot_pie
+from eda.analyzer import load_data, basic_stats, detect_outliers, correlation_matrix, clean_data, fix_dtypes, feature_importance
+from eda.visualizer import plot_distributions, plot_correlation_heatmap, plot_missing_values, plot_outliers, plot_categorical, plot_scatter, plot_pie, plot_feature_importance
 from eda.reporter import generate_report
 from export.pdf_exporter import create_pdf_report
 
@@ -49,13 +51,14 @@ if uploaded_file is not None:
         corr = correlation_matrix(df)
     
     # Tab yapısı
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📈 Genel İstatistikler",
     "📊 Dağılımlar",
     "🔥 Korelasyon",
     "⚠️ Outlier & Eksik",
     "🤖 AI Raporu",
-    "🧹 Veri Temizleme"
+    "🧹 Veri Temizleme",
+    "🎯 Feature Importance"
     ])
     
     # TAB 1 — Genel İstatistikler
@@ -232,6 +235,30 @@ if uploaded_file is not None:
                 type="primary"
             )
 
+# TAB 7 — Feature Importance
+    with tab7:
+        st.subheader("🎯 Feature Importance — Hangi Sütun Daha Etkili?")
+        st.info("Bir hedef sütun seç, diğer sütunların ona etkisini görelim.")
+        
+        target = st.selectbox(
+            "Hedef sütun seç",
+            options=df.columns.tolist(),
+            key="target_col"
+        )
+        
+        if st.button("🎯 Analiz Et", type="primary"):
+            with st.spinner("Model eğitiliyor..."):
+                importance_df, task = feature_importance(df, target)
+            
+            if importance_df is not None:
+                st.success(f"✅ Görev tipi: **{'Sınıflandırma' if task == 'classification' else 'Regresyon'}**")
+                fig = plot_feature_importance(importance_df)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                st.markdown("**Önem Skorları Tablosu**")
+                st.dataframe(importance_df, use_container_width=True)
+            else:
+                st.error(task)
 else:
     # Dosya yüklenmemişse hoşgeldin ekranı
     st.markdown("""

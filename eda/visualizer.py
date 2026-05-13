@@ -107,3 +107,17 @@ def plot_pie(df, col):
     )
     fig.update_traces(textposition='inside', textinfo='percent+label')
     return fig
+
+def plot_feature_importance(importance_df):
+    fig = px.bar(
+        importance_df,
+        x='importance',
+        y='feature',
+        orientation='h',
+        title="Feature Importance — Hangi Sütun Daha Etkili?",
+        labels={'importance': 'Önem Skoru', 'feature': 'Sütun'},
+        color='importance',
+        color_continuous_scale='Viridis'
+    )
+    fig.update_layout(yaxis={'categoryorder': 'total ascending'})
+    return fig

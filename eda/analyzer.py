@@ -95,3 +95,42 @@ def fix_dtypes(df):
             except:
                 pass
     return fixed
+
+def feature_importance(df, target_col):
+    from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+    from sklearn.preprocessing import LabelEncoder
+    
+    data = df.copy()
+    
+    # Hedef sütunu ayır
+    y = data[target_col]
+    X = data.drop(columns=[target_col])
+    
+    # Sadece sayısal sütunları al
+    X = X.select_dtypes(include=np.number)
+    
+    if X.empty or len(X.columns) < 1:
+        return None, "Yeterli sayısal sütun yok."
+    
+    # Eksik değerleri doldur
+    X = X.fillna(X.mean())
+    
+    # Hedef sütun sayısal mı kategorik mi?
+    if y.dtype == 'object' or y.nunique() < 10:
+        le = LabelEncoder()
+        y = le.fit_transform(y.astype(str))
+        model = RandomForestClassifier(n_estimators=100, random_state=42)
+        task = "classification"
+    else:
+        y = y.fillna(y.mean())
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+        task = "regression"
+    
+    model.fit(X, y)
+    
+    importance_df = pd.DataFrame({
+        'feature': X.columns,
+        'importance': model.feature_importances_
+    }).sort_values('importance', ascending=False)
+    
+    return importance_df, task
