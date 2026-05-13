@@ -86,3 +86,24 @@ def plot_categorical(df):
         figures.append((col, fig))
     
     return figures
+
+def plot_scatter(df, col_x, col_y, color_col=None):
+    fig = px.scatter(
+        df, x=col_x, y=col_y,
+        color=color_col if color_col != "Yok" else None,
+        title=f"{col_x} vs {col_y} — Scatter Plot",
+        trendline="ols",
+        color_discrete_sequence=px.colors.qualitative.Set2
+    )
+    return fig
+
+def plot_pie(df, col):
+    value_counts = df[col].value_counts().head(10)
+    fig = px.pie(
+        values=value_counts.values,
+        names=value_counts.index,
+        title=f"{col} — Pasta Grafik (Top 10)",
+        color_discrete_sequence=px.colors.qualitative.Set3
+    )
+    fig.update_traces(textposition='inside', textinfo='percent+label')
+    return fig

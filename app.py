@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
-from eda.analyzer import load_data, basic_stats, detect_outliers, correlation_matrix
-from eda.visualizer import plot_distributions, plot_correlation_heatmap, plot_missing_values, plot_outliers, plot_categorical
+import numpy as np
+from eda.analyzer import load_data, basic_stats, detect_outliers, correlation_matrix, clean_data, fix_dtypes
+from eda.visualizer import plot_distributions, plot_correlation_heatmap, plot_missing_values, plot_outliers, plot_categorical, plot_scatter, plot_pie
 from eda.reporter import generate_report
 from export.pdf_exporter import create_pdf_report
 
@@ -17,8 +18,6 @@ st.markdown("---")
 
 # Sol panel ayarlar
 with st.sidebar:
-    st.header("⚙️ Ayarlar")
-    st.markdown("---")
     st.markdown("**Nasıl Kullanılır?**")
     st.markdown("1. CSV dosyanı yükle")
     st.markdown("2. Analizi incele")
@@ -50,12 +49,13 @@ if uploaded_file is not None:
         corr = correlation_matrix(df)
     
     # Tab yapısı
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📈 Genel İstatistikler",
-        "📊 Dağılımlar",
-        "🔥 Korelasyon",
-        "⚠️ Outlier & Eksik",
-        "🤖 AI Raporu"
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "📈 Genel İstatistikler",
+    "📊 Dağılımlar",
+    "🔥 Korelasyon",
+    "⚠️ Outlier & Eksik",
+    "🤖 AI Raporu",
+    "🧹 Veri Temizleme"
     ])
     
     # TAB 1 — Genel İstatistikler
@@ -98,6 +98,33 @@ if uploaded_file is not None:
                 st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("Kategorik sütun bulunamadı.")
+        st.markdown("---")
+        st.subheader("🔵 Scatter Plot")
+        numeric_cols_list = df.select_dtypes(include=np.number).columns.tolist()
+        cat_cols_list = df.select_dtypes(include=['object', 'category']).columns.tolist()
+        
+        if len(numeric_cols_list) >= 2:
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                scatter_x = st.selectbox("X ekseni", numeric_cols_list, key="scatter_x")
+            with col2:
+                scatter_y = st.selectbox("Y ekseni", numeric_cols_list, index=1, key="scatter_y")
+            with col3:
+                scatter_color = st.selectbox("Renk (opsiyonel)", ["Yok"] + cat_cols_list, key="scatter_color")
+            
+            scatter_fig = plot_scatter(df, scatter_x, scatter_y, scatter_color)
+            st.plotly_chart(scatter_fig, use_container_width=True)
+        else:
+            st.info("Scatter plot için en az 2 sayısal sütun gerekli.")
+        
+        st.markdown("---")
+        st.subheader("🥧 Pasta Grafik")
+        if cat_cols_list:
+            pie_col = st.selectbox("Sütun seç", cat_cols_list, key="pie_col")
+            pie_fig = plot_pie(df, pie_col)
+            st.plotly_chart(pie_fig, use_container_width=True)
+        else:
+            st.info("Pasta grafik için kategorik sütun gerekli.")    
     
     # TAB 3 — Korelasyon
     with tab3:
@@ -151,6 +178,57 @@ if uploaded_file is not None:
                 data=pdf_buffer,
                 file_name="autoeda_raporu.pdf",
                 mime="application/pdf",
+                type="primary"
+            )
+
+# TAB 6 — Veri Temizleme
+    with tab6:
+        st.subheader("🧹 Veri Temizleme & Düzenleme")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Eksik Değer Doldurma Yöntemi**")
+            fill_method = st.selectbox(
+                "Yöntem seç",
+                ["Mean (Ortalama)", "Median (Medyan)", "Mode (Mod)", "Sıfır (0)", "Sil (Drop Rows)"]
+            )
+        
+        with col2:
+            st.markdown("**Silinecek Sütunlar**")
+            columns_to_drop = st.multiselect(
+                "Sütun seç (boş bırakabilirsin)",
+                options=df.columns.tolist()
+            )
+        
+        st.markdown("---")
+        
+        fix_types = st.checkbox("🔧 Veri tiplerini otomatik düzelt (tarih, sayı tespiti)")
+        
+        if st.button("🧹 Temizle & Uygula", type="primary"):
+            with st.spinner("Temizleniyor..."):
+                cleaned_df = clean_data(df, fill_method, columns_to_drop)
+                if fix_types:
+                    cleaned_df = fix_dtypes(cleaned_df)
+            
+            st.success(f"✅ Temizlendi! {df.shape[0] - cleaned_df.shape[0]} satır, {df.shape[1] - cleaned_df.shape[1]} sütun kaldırıldı.")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**Öncesi**")
+                st.dataframe(df.head(), use_container_width=True)
+            with col2:
+                st.markdown("**Sonrası**")
+                st.dataframe(cleaned_df.head(), use_container_width=True)
+            
+            # CSV olarak indir
+            st.markdown("---")
+            csv = cleaned_df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Temizlenmiş Veriyi İndir (CSV)",
+                data=csv,
+                file_name="cleaned_data.csv",
+                mime="text/csv",
                 type="primary"
             )
 

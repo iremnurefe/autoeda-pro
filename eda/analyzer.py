@@ -49,3 +49,49 @@ def correlation_matrix(df):
     if numeric_df.shape[1] < 2:
         return None
     return numeric_df.corr().round(2)
+
+def clean_data(df, fill_method, columns_to_drop):
+    cleaned = df.copy()
+    
+    # Sütun sil
+    if columns_to_drop:
+        cleaned = cleaned.drop(columns=columns_to_drop, errors='ignore')
+    
+    # Eksik değerleri doldur
+    numeric_cols = cleaned.select_dtypes(include=np.number).columns
+    cat_cols = cleaned.select_dtypes(include=['object', 'category']).columns
+    
+    if fill_method == "Mean (Ortalama)":
+        cleaned[numeric_cols] = cleaned[numeric_cols].fillna(cleaned[numeric_cols].mean())
+    elif fill_method == "Median (Medyan)":
+        cleaned[numeric_cols] = cleaned[numeric_cols].fillna(cleaned[numeric_cols].median())
+    elif fill_method == "Mode (Mod)":
+        cleaned[numeric_cols] = cleaned[numeric_cols].fillna(cleaned[numeric_cols].mode().iloc[0])
+    elif fill_method == "Sıfır (0)":
+        cleaned[numeric_cols] = cleaned[numeric_cols].fillna(0)
+    elif fill_method == "Sil (Drop Rows)":
+        cleaned = cleaned.dropna()
+    
+    # Kategorik sütunlardaki eksikleri mod ile doldur
+    for col in cat_cols:
+        if cleaned[col].isnull().any():
+            cleaned[col] = cleaned[col].fillna(cleaned[col].mode().iloc[0] if not cleaned[col].mode().empty else "Unknown")
+    
+    return cleaned
+
+def fix_dtypes(df):
+    fixed = df.copy()
+    for col in fixed.columns:
+        # Tarih tespiti
+        if fixed[col].dtype == 'object':
+            try:
+                fixed[col] = pd.to_datetime(fixed[col])
+                continue
+            except:
+                pass
+            # Sayı tespiti
+            try:
+                fixed[col] = pd.to_numeric(fixed[col])
+            except:
+                pass
+    return fixed
