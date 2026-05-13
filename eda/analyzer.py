@@ -2,10 +2,15 @@ import pandas as pd
 import numpy as np
 
 def load_data(file):
-    try:
-        return pd.read_csv(file, encoding='utf-8')
-    except UnicodeDecodeError:
-        return pd.read_csv(file, encoding='latin-1')
+    filename = file.name.lower()
+    
+    if filename.endswith('.xlsx') or filename.endswith('.xls'):
+        return pd.read_excel(file)
+    else:
+        try:
+            return pd.read_csv(file, encoding='utf-8')
+        except UnicodeDecodeError:
+            return pd.read_csv(file, encoding='latin-1')
 
 def basic_stats(df):
     stats = {}

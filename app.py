@@ -28,8 +28,8 @@ with st.sidebar:
 
 # Dosya yükleme
 uploaded_file = st.file_uploader(
-    "📂 CSV dosyanı yükle",
-    type=["csv"],
+    "📂 CSV veya Excel dosyanı yükle",
+    type=["csv", "xlsx", "xls"],
     help="Maksimum 200MB"
 )
 
