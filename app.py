@@ -3,7 +3,7 @@ load_dotenv()
 import streamlit as st
 import pandas as pd
 import numpy as np
-from eda.analyzer import load_data, basic_stats, detect_outliers, correlation_matrix, clean_data, fix_dtypes, feature_importance
+from eda.analyzer import load_data, basic_stats, detect_outliers, correlation_matrix, clean_data, fix_dtypes, feature_importance, data_quality_score
 from eda.visualizer import plot_distributions, plot_correlation_heatmap, plot_missing_values, plot_outliers, plot_categorical, plot_scatter, plot_pie, plot_feature_importance
 from eda.reporter import generate_report
 from export.pdf_exporter import create_pdf_report
@@ -51,15 +51,16 @@ if uploaded_file is not None:
         corr = correlation_matrix(df)
     
     # Tab yapısı
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "📈 Genel İstatistikler",
     "📊 Dağılımlar",
     "🔥 Korelasyon",
     "⚠️ Outlier & Eksik",
     "🤖 AI Raporu",
     "🧹 Veri Temizleme",
-    "🎯 Feature Importance"
-    ])
+    "🎯 Feature Importance",
+    "🏆 Kalite Skoru"
+])
     
     # TAB 1 — Genel İstatistikler
     with tab1:
@@ -259,6 +260,35 @@ if uploaded_file is not None:
                 st.dataframe(importance_df, use_container_width=True)
             else:
                 st.error(task)
+
+# TAB 8 — Veri Kalite Skoru
+    with tab8:
+        st.subheader("🏆 Veri Kalite Skoru")
+        
+        with st.spinner("Kalite skoru hesaplanıyor..."):
+            quality = data_quality_score(df)
+        
+        # Büyük skor göstergesi
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.markdown(f"""
+            <div style='text-align: center; padding: 30px; border-radius: 15px; 
+                        background: linear-gradient(135deg, #1e1e2e, #2e2e4e);
+                        border: 3px solid {'#00ff88' if quality['score'] >= 80 else '#ff8800' if quality['score'] >= 60 else '#ff4444'}'>
+                <h1 style='font-size: 80px; margin: 0; color: {'#00ff88' if quality['score'] >= 80 else '#ff8800' if quality['score'] >= 60 else '#ff4444'}'>{quality['score']}</h1>
+                <h2 style='color: white; margin: 0'>/ 100</h2>
+                <h1 style='font-size: 60px; margin: 10px 0; color: {'#00ff88' if quality['score'] >= 80 else '#ff8800' if quality['score'] >= 60 else '#ff4444'}'>Not: {quality['grade']}</h1>
+                <p style='color: #aaa; font-size: 18px'>{quality['comment']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("---")
+        st.subheader("📋 Puan Detayları")
+        for detail in quality['details']:
+            st.markdown(detail)
+        
+        st.markdown("---")
+        st.info("💡 Puanını artırmak için **Veri Temizleme** sekmesini kullan!")            
 else:
     # Dosya yüklenmemişse hoşgeldin ekranı
     st.markdown("""

@@ -139,3 +139,86 @@ def feature_importance(df, target_col):
     }).sort_values('importance', ascending=False)
     
     return importance_df, task
+
+def data_quality_score(df):
+    score = 100
+    details = []
+    
+    # 1. Eksik değer kontrolü
+    missing_pct = df.isnull().sum().sum() / (df.shape[0] * df.shape[1]) * 100
+    if missing_pct > 0:
+        penalty = min(missing_pct * 2, 30)
+        score -= penalty
+        details.append(f"❌ Eksik değerler: %{missing_pct:.1f} → -{penalty:.0f} puan")
+    else:
+        details.append("✅ Eksik değer yok → +0 puan")
+    
+    # 2. Yinelenen satır kontrolü
+    dup_pct = df.duplicated().sum() / len(df) * 100
+    if dup_pct > 0:
+        penalty = min(dup_pct * 2, 20)
+        score -= penalty
+        details.append(f"❌ Yinelenen satırlar: %{dup_pct:.1f} → -{penalty:.0f} puan")
+    else:
+        details.append("✅ Yinelenen satır yok → +0 puan")
+    
+    # 3. Outlier kontrolü
+    numeric_cols = df.select_dtypes(include=np.number).columns
+    total_outliers = 0
+    for col in numeric_cols:
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        outliers = ((df[col] < Q1 - 1.5 * IQR) | (df[col] > Q3 + 1.5 * IQR)).sum()
+        total_outliers += outliers
+    
+    outlier_pct = total_outliers / (len(df) * len(numeric_cols)) * 100 if len(numeric_cols) > 0 else 0
+    if outlier_pct > 0:
+        penalty = min(outlier_pct * 1.5, 20)
+        score -= penalty
+        details.append(f"❌ Aykırı değerler: %{outlier_pct:.1f} → -{penalty:.0f} puan")
+    else:
+        details.append("✅ Aykırı değer yok → +0 puan")
+    
+    # 4. Veri tipi tutarlılığı
+    mixed_cols = []
+    for col in df.select_dtypes(include='object').columns:
+        try:
+            pd.to_numeric(df[col])
+            mixed_cols.append(col)
+        except:
+            pass
+    
+    if mixed_cols:
+        penalty = len(mixed_cols) * 5
+        score -= penalty
+        details.append(f"❌ Sayı olması gereken metin sütunlar: {mixed_cols} → -{penalty} puan")
+    else:
+        details.append("✅ Veri tipleri tutarlı → +0 puan")
+    
+    score = max(0, round(score))
+    
+    if score >= 80:
+        grade = "A"
+        color = "green"
+        comment = "Veri kalitesi yüksek, analize hazır!"
+    elif score >= 60:
+        grade = "B"
+        color = "orange"
+        comment = "Veri kalitesi orta, bazı iyileştirmeler önerilir."
+    elif score >= 40:
+        grade = "C"
+        color = "red"
+        comment = "Veri kalitesi düşük, temizleme gerekli."
+    else:
+        grade = "F"
+        color = "red"
+        comment = "Veri kalitesi çok düşük, kapsamlı temizlik şart!"
+    
+    return {
+        'score': score,
+        'grade': grade,
+        'color': color,
+        'comment': comment,
+        'details': details
+    }
