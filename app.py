@@ -3,7 +3,7 @@ load_dotenv()
 import streamlit as st
 import pandas as pd
 import numpy as np
-from eda.analyzer import load_data, basic_stats, detect_outliers, correlation_matrix, clean_data, fix_dtypes, feature_importance, data_quality_score
+from eda.analyzer import load_data, basic_stats, detect_outliers, correlation_matrix, clean_data, fix_dtypes, feature_importance, data_quality_score, detect_time_series
 from eda.visualizer import plot_distributions, plot_correlation_heatmap, plot_missing_values, plot_outliers, plot_categorical, plot_scatter, plot_pie, plot_feature_importance
 from eda.reporter import generate_report
 from export.pdf_exporter import create_pdf_report
@@ -51,7 +51,7 @@ if uploaded_file is not None:
         corr = correlation_matrix(df)
     
     # Tab yapısı
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
     "📈 Genel İstatistikler",
     "📊 Dağılımlar",
     "🔥 Korelasyon",
@@ -59,7 +59,8 @@ if uploaded_file is not None:
     "🤖 AI Raporu",
     "🧹 Veri Temizleme",
     "🎯 Feature Importance",
-    "🏆 Kalite Skoru"
+    "🏆 Kalite Skoru",
+    "📅 Zaman Serisi"
 ])
     
     # TAB 1 — Genel İstatistikler
@@ -288,7 +289,32 @@ if uploaded_file is not None:
             st.markdown(detail)
         
         st.markdown("---")
-        st.info("💡 Puanını artırmak için **Veri Temizleme** sekmesini kullan!")            
+        st.info("💡 Puanını artırmak için **Veri Temizleme** sekmesini kullan!")  
+
+    # TAB 9 — Zaman Serisi
+    with tab9:
+        st.subheader("📅 Zaman Serisi Analizi")
+        
+        date_cols = detect_time_series(df)
+        numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
+        
+        if date_cols:
+            col1, col2 = st.columns(2)
+            with col1:
+                date_col = st.selectbox("Tarih sütunu seç", date_cols, key="date_col")
+            with col2:
+                value_col = st.selectbox("Değer sütunu seç", numeric_cols, key="value_col")
+            
+            fig = plot_time_series(df, date_col, value_col)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("📅 Veri setinde tarih sütunu tespit edilemedi. Tarih içeren bir CSV yükle!")
+            st.markdown("""
+            **Desteklenen tarih formatları:**
+            - `2024-01-15`
+            - `15/01/2024`
+            - `January 15, 2024`
+            """)              
 else:
     # Dosya yüklenmemişse hoşgeldin ekranı
     st.markdown("""

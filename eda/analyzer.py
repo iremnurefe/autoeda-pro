@@ -222,3 +222,15 @@ def data_quality_score(df):
         'comment': comment,
         'details': details
     }
+def detect_time_series(df):
+    date_cols = []
+    for col in df.columns:
+        if df[col].dtype == 'datetime64[ns]':
+            date_cols.append(col)
+        elif df[col].dtype == 'object':
+            try:
+                pd.to_datetime(df[col])
+                date_cols.append(col)
+            except:
+                pass
+    return date_cols

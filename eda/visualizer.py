@@ -121,3 +121,17 @@ def plot_feature_importance(importance_df):
     )
     fig.update_layout(yaxis={'categoryorder': 'total ascending'})
     return fig
+def plot_time_series(df, date_col, value_col):
+    temp_df = df.copy()
+    temp_df[date_col] = pd.to_datetime(temp_df[date_col])
+    temp_df = temp_df.sort_values(date_col)
+    
+    fig = px.line(
+        temp_df, x=date_col, y=value_col,
+        title=f"{value_col} — Zaman Serisi Analizi",
+        labels={date_col: "Tarih", value_col: "Değer"},
+        color_discrete_sequence=["#636EFA"]
+    )
+    fig.update_traces(line=dict(width=2))
+    fig.update_layout(hovermode="x unified")
+    return fig
