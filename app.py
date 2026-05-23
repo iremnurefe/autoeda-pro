@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from eda.analyzer import load_data, basic_stats, detect_outliers, correlation_matrix, clean_data, fix_dtypes, feature_importance, data_quality_score, detect_time_series
 from eda.visualizer import plot_distributions, plot_correlation_heatmap, plot_missing_values, plot_outliers, plot_categorical, plot_scatter, plot_pie, plot_feature_importance
-from eda.reporter import generate_report
+from eda.reporter import generate_report, get_templates
 from export.pdf_exporter import create_pdf_report
 
 st.set_page_config(
@@ -167,9 +167,10 @@ if uploaded_file is not None:
         st.info("Rapor üretmek için aşağıdaki butona tıkla. Ollama'nın çalışıyor olması gerekiyor.")
         
         report_lang = st.selectbox("Rapor dilini seç", ["English", "Türkçe"], key="report_lang")
+        report_template = st.selectbox("Rapor şablonu seç", get_templates(), key="report_template")
         if st.button("🚀 Rapor Üret", type="primary"):
             with st.spinner("AI raporu yazıyor... (1-2 dakika sürebilir)"):
-                report = generate_report(stats, outliers, corr, report_lang)
+                report = generate_report(stats, outliers, corr, report_lang, report_template)
             st.markdown(report)
             
             # PDF Export

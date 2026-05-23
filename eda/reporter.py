@@ -1,7 +1,37 @@
 import os
 from groq import Groq
 
-def generate_report(stats, outliers, corr_matrix, language="Türkçe"):
+TEMPLATES = {
+    "Genel": {
+        "tr": "",
+        "en": ""
+    },
+    "Finans": {
+        "tr": "Bu bir finansal veri setidir. Gelir, gider, kar/zarar, risk faktörleri ve finansal trendlere özellikle dikkat et.",
+        "en": "This is a financial dataset. Focus on revenue, expenses, profit/loss, risk factors and financial trends."
+    },
+    "Müşteri": {
+        "tr": "Bu bir müşteri verisi setidir. Müşteri segmentasyonu, davranış kalıpları, churn riski ve müşteri memnuniyetine odaklan.",
+        "en": "This is a customer dataset. Focus on segmentation, behavior patterns, churn risk and satisfaction."
+    },
+    "Sağlık": {
+        "tr": "Bu bir sağlık/medikal veri setidir. Hasta demografisi, hastalık örüntüleri ve klinik öneme sahip bulgulara dikkat et.",
+        "en": "This is a health/medical dataset. Focus on patient demographics, disease patterns and clinical findings."
+    },
+    "E-Ticaret": {
+        "tr": "Bu bir e-ticaret verisidir. Satış trendleri, ürün performansı, müşteri satın alma davranışları ve gelir optimizasyonuna odaklan.",
+        "en": "This is an e-commerce dataset. Focus on sales trends, product performance and revenue optimization."
+    },
+    "İK": {
+        "tr": "Bu bir insan kaynakları verisidir. Çalışan performansı, işten ayrılma oranları, maaş dağılımı ve departman analizine odaklan.",
+        "en": "This is an HR dataset. Focus on employee performance, turnover rates, salary distribution and department analysis."
+    }
+}
+
+def get_templates():
+    return list(TEMPLATES.keys())
+
+def generate_report(stats, outliers, corr_matrix, language="Türkçe", template="Genel"):
     
     rows, cols = stats['shape']
     missing_cols = {k: v for k, v in stats['missing'].items() if v > 0}
@@ -21,8 +51,11 @@ def generate_report(stats, outliers, corr_matrix, language="Türkçe"):
                 if abs(val) > 0.5:
                     corr_summary.append(f"{cols_list[i]} & {cols_list[j]}: {val}")
 
+    template_context = TEMPLATES.get(template, TEMPLATES["Genel"])
+    
     if language == "English":
-        prompt = f"""You are a data analyst assistant. Analyze the following dataset statistics and write a professional report in ENGLISH ONLY.
+        ctx = template_context["en"]
+        prompt = f"""You are a data analyst assistant. {ctx} Analyze the following dataset statistics and write a professional report in ENGLISH ONLY. Do not use any Turkish words.
 
 DATASET INFO:
 - Rows: {rows}
@@ -40,8 +73,10 @@ Write a report with these sections:
 4. Recommendations
 
 IMPORTANT: Write ONLY in English. Use Markdown format."""
+
     else:
-        prompt = f"""Sen bir veri analisti asistanisin. Asagidaki veri seti istatistiklerini analiz et ve Turkce dilinde profesyonel bir rapor yaz.
+        ctx = template_context["tr"]
+        prompt = f"""Sen bir veri analisti asistanisin. {ctx} Asagidaki veri seti istatistiklerini analiz et ve Turkce dilinde profesyonel bir rapor yaz.
 
 VERI SETI BILGILERI:
 - Satir sayisi: {rows}
@@ -63,7 +98,7 @@ Rapor profesyonel Turkce olsun. Markdown formatinda yaz."""
     try:
         api_key = os.environ.get("GROQ_API_KEY")
         if not api_key:
-            return "⚠️ GROQ_API_KEY bulunamadı! .env dosyasını kontrol et."
+            return "GROQ_API_KEY bulunamadi! .env dosyasini kontrol et."
         
         client = Groq(api_key=api_key)
         
@@ -79,4 +114,4 @@ Rapor profesyonel Turkce olsun. Markdown formatinda yaz."""
         return response.choices[0].message.content
     
     except Exception as e:
-        return f"⚠️ Hata: {str(e)}"
+        return f"Hata: {str(e)}"
