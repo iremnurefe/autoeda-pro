@@ -1,12 +1,13 @@
 # 📊 AutoEDA Pro — Automated Exploratory Data Analysis
-🌐 **Canlı Demo:** [AutoEDA Pro](https://autoeda-pro-dkzktz6xyfnmmpnyeggnmc.streamlit.app/)
 
-> Upload a CSV file and get a professional data analysis report in seconds — with AI-powered insights in Turkish or English.
+> Upload a CSV or Excel file and get a professional data analysis report in seconds — with AI-powered insights in Turkish or English.
+
+🌐 **Live Demo:** [AutoEDA Pro](https://iremnurefe-autoeda-pro-app-http://localhost:8501/.streamlit.app)
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat-square&logo=python)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.0+-red?style=flat-square&logo=streamlit)
 ![Plotly](https://img.shields.io/badge/Plotly-Interactive-green?style=flat-square&logo=plotly)
-![Ollama](https://img.shields.io/badge/Ollama-Llama3.1-orange?style=flat-square)
+![Groq](https://img.shields.io/badge/Groq-Llama3.1-orange?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
 ---
@@ -14,11 +15,17 @@
 ## 🚀 Features
 
 - 📈 **Automatic Statistics** — mean, median, std, missing values, duplicates
-- 📊 **Interactive Charts** — distribution plots, correlation heatmap, categorical analysis
+- 📊 **Interactive Charts** — distribution, correlation heatmap, scatter plot, pie chart
 - ⚠️ **Outlier Detection** — IQR method with visual highlights
 - ❓ **Missing Value Analysis** — visual breakdown by column
-- 🤖 **AI-Powered Report** — automatic narrative in Turkish or English (Llama 3.1 via Ollama)
-- 📄 **PDF Export** — download a professional report with one click
+- 📅 **Time Series Analysis** — automatic date detection and trend visualization
+- 🎯 **Feature Importance** — Random Forest based feature ranking
+- 🧹 **Data Cleaning** — fill missing values, drop columns, fix data types
+- 🏆 **Data Quality Score** — automatic 0-100 quality rating with grade
+- 🤖 **AI-Powered Report** — Groq API (Llama 3.1) in Turkish or English
+- 📋 **Report Templates** — Finance, Customer, Health, E-Commerce, HR
+- 📄 **PDF Export** — one-click professional report download
+- 📁 **CSV & Excel Support** — .csv, .xlsx, .xls files
 
 ---
 
@@ -27,7 +34,7 @@
 ![Ana Ekran](Screenshot1.png)
 ![Genel Bilgiler](Screenshot2.png)
 ![AI Report](Screenshot3.png)
-![Veri Temizleme](Screenshot4.png)
+![Kalite Skoru](Screenshot4.png)
 
 ---
 
@@ -38,8 +45,10 @@
 | Streamlit | Web interface |
 | Pandas & NumPy | Data analysis |
 | Plotly | Interactive visualizations |
-| Llama 3.1 (Ollama) | AI report generation |
+| Scikit-learn | Feature importance (Random Forest) |
+| Groq API (Llama 3.1) | AI report generation |
 | ReportLab | PDF export |
+| OpenPyXL | Excel file support |
 
 ---
 
@@ -47,7 +56,7 @@
 
 ### Requirements
 - Python 3.8+
-- [Ollama](https://ollama.com) (for AI report feature)
+- [Groq API Key](https://console.groq.com) (free)
 
 ### Steps
 
@@ -68,8 +77,8 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Download AI model
-ollama pull llama3.1
+# Create .env file and add your Groq API key
+echo GROQ_API_KEY=your_key_here > .env
 
 # Run the app
 streamlit run app.py
@@ -83,14 +92,13 @@ autoeda-pro/
 ├── requirements.txt
 ├── README.md
 ├── eda/
-│   ├── analyzer.py        # Statistical analysis
+│   ├── analyzer.py        # Statistical analysis & data quality
 │   ├── visualizer.py      # Plotly visualizations
-│   └── reporter.py        # AI report generation (Ollama)
+│   └── reporter.py        # AI report generation (Groq)
 ├── export/
 │   └── pdf_exporter.py    # PDF report creation
 └── sample_data/
 └── ornek_veri.csv     # Sample dataset
-
 ---
 
 ## 🤝 Contributing
