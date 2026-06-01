@@ -2,7 +2,7 @@
 
 > Upload a CSV or Excel file and get a professional data analysis report in seconds — with AI-powered insights in Turkish or English.
 
-🌐 **Live Demo:** [AutoEDA Pro](https://iremnurefe-autoeda-pro-app-http://localhost:8501/.streamlit.app)
+🌐 **Live Demo:** [AutoEDA Pro](https://iremnurefe-autoeda-pro-app-https://autoeda-pro-dkzktz6xyfnmmpnyeggnmc.streamlit.app/.streamlit.app)
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat-square&logo=python)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.0+-red?style=flat-square&logo=streamlit)
